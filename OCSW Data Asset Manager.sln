@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2008
+
+Project("{75B6E4C9-2295-B75C-7EA0-27531010207F}") = "OCSW Data Asset Manager", "Assembly-CSharp.csproj", "{A0ECFEF3-9572-A638-BD5A-99775006DA8D}"
+EndProject
+Project("{75B6E4C9-2295-B75C-7EA0-27531010207F}") = "OCSW Data Asset Manager", "Assembly-CSharp-Editor.csproj", "{DD24BA52-E255-6EF3-6799-2D746421BA7F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A0ECFEF3-9572-A638-BD5A-99775006DA8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0ECFEF3-9572-A638-BD5A-99775006DA8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0ECFEF3-9572-A638-BD5A-99775006DA8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0ECFEF3-9572-A638-BD5A-99775006DA8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD24BA52-E255-6EF3-6799-2D746421BA7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD24BA52-E255-6EF3-6799-2D746421BA7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD24BA52-E255-6EF3-6799-2D746421BA7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD24BA52-E255-6EF3-6799-2D746421BA7F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
+	EndGlobalSection
+EndGlobal
