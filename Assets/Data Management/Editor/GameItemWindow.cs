@@ -4,7 +4,7 @@ using UnityEditor;
 using System.Collections.Generic;
 using UnityEditor.UI;
 
-public class DataManagerWindow : EditorWindow {
+public class GameItemWindow : EditorWindow {
 
     private int selectedToolType;
     private int selectedToolSort;
@@ -12,30 +12,36 @@ public class DataManagerWindow : EditorWindow {
     private Vector2 scrollPositionLeft;
     private Vector2 scrollPositionRight;
 
-//    public GameDataManager manager = null;
-    private List<GameDatabase> databaseList = null;
-    public GameDatabase selectedDatabase;
-    private GameData selectedGameData;
-    private List<GameData> gameDataList = new List<GameData>();
+    public OcswDatabase myDatabase = null;
+    private List<GameItemDatabase> databaseList = null;
+    public GameItemDatabase selectedDatabase;
+    private GameItem selectedGameData;
+    private List<GameItem> gameDataList = new List<GameItem>();
 
     [MenuItem ("Data Managers/Game Data Manager")]
     static void Init() {
-        AttributeManagerWindow attWindow = (AttributeManagerWindow)EditorWindow.GetWindow (typeof(AttributeManagerWindow));
-        DataManagerWindow dataWindow = (DataManagerWindow)EditorWindow.GetWindow (typeof(DataManagerWindow));
-        attWindow.Close ();
+//        AttributeManagerWindow attWindow = (AttributeManagerWindow)EditorWindow.GetWindow (typeof(AttributeManagerWindow));
+        GameItemWindow dataWindow = (GameItemWindow)EditorWindow.GetWindow (typeof(GameItemWindow));
+//        attWindow.Close ();
+//        dataWindow.Close ();
         dataWindow.Show ();
     }
 
     void OnEnable () {
         Debug.Log ("Data window enabled");
-//        if (manager == null) {
-//            Debug.Log ("Manager was null");
-//            manager = new GameDataManager(); // do i really need this?
-//        }
-        if (databaseList == null) {
-            Debug.Log ("Database List was null");
-            databaseList = GameDataManager.Databases;
+        Debug.Log (OcswManager.Database.ToString());
+        if (myDatabase == null) {
+                        Debug.Log ("myDatabase was null");
+            myDatabase = OcswManager.Database;
         }
+        if (databaseList == null) {
+            //            Debug.Log ("Database List was null");
+            databaseList = myDatabase.itemDatabases;
+        }
+        //        if (databaseList == null) {
+////            Debug.Log ("Database List was null");
+//            databaseList = GameItemManager.Databases;
+//        }
     }
 
     void OnGUI (){
@@ -53,20 +59,24 @@ public class DataManagerWindow : EditorWindow {
     }
 
     void UnlockedGUI() {
+        if (databaseList.Contains(null)) {
+            databaseList = GameItemManager.Databases;
+        }
         selectedToolType = GUILayout.Toolbar(selectedToolType, GetDataTypeNames());
-//        selectedDatabase = gameDictionary[GameDataUtilities.allDataTypes [selectedToolType]];
         selectedDatabase = databaseList[selectedToolType];
-//        while (selectedDatabase == null) {
-//            databaseList = GameDataManager.Databases;
-//            selectedDatabase = databaseList[selectedToolType];
-//        }
         EditorGUILayout.BeginHorizontal (); { // Split list and data view
             EditorGUILayout.BeginVertical (); { // List of data
                 selectedToolSort = GUILayout.Toolbar (selectedToolSort, new string[]{ "Name", "ID", "Category" });
                 scrollPositionLeft = EditorGUILayout.BeginScrollView (scrollPositionLeft); {
                     EditorGUILayout.BeginHorizontal (); {
-//                        if (selectedDatabase.dictionary.Count > 0) {
+                        selectedGameData = null;
                         if (selectedDatabase.myData.Count > 0) {
+                            if (selectedListItem >= selectedDatabase.myData.Count) {
+                                selectedListItem = (selectedDatabase.myData.Count - 1);
+                            }
+                            if (selectedListItem < 0) {
+                                selectedListItem = 0;
+                            }
                             selectedListItem = GUILayout.SelectionGrid (selectedListItem, GetDataNames (), 1);
                             selectedListItem = GUILayout.SelectionGrid (selectedListItem, GetDataIDs (), 1);
                             selectedListItem = GUILayout.SelectionGrid (selectedListItem, GetCategoryNames(), 1);
@@ -85,20 +95,15 @@ public class DataManagerWindow : EditorWindow {
                 }
             } EditorGUILayout.EndVertical (); 
             EditorGUILayout.BeginVertical (); { // data details
-                scrollPositionRight = EditorGUILayout.BeginScrollView (scrollPositionRight); {
-                    if (selectedGameData != null) {
+                if (selectedGameData != null) {
+                    scrollPositionRight = EditorGUILayout.BeginScrollView (scrollPositionRight);
+                    {   
                         selectedGameData.OnGUI ();
                     }
-                } EditorGUILayout.EndScrollView ();
-                if (GUILayout.Button("Delete")){
-                    if (selectedGameData != null) {
+                    EditorGUILayout.EndScrollView ();
+                    if (GUILayout.Button ("Delete")) {
                         // Put a warning dialogue here
                         selectedDatabase.RemoveData (selectedGameData.dataObjectID);
-                        selectedGameData = null;
-                        selectedListItem --;
-                    }
-                    if (selectedListItem < 0) {
-                        selectedListItem = 0;
                     }
                 }
             } EditorGUILayout.EndVertical ();
@@ -106,9 +111,11 @@ public class DataManagerWindow : EditorWindow {
     }
 
     void LockedGUI() {
+        if (databaseList.Contains(null)) {
+            databaseList = GameItemManager.Databases;
+        }
         GUILayout.Toolbar(selectedToolType, GetDataTypeNames());
-        databaseList = GameDataManager.Databases;
-//        selectedDatabase = gameDictionary[GameDataUtilities.allDataTypes [selectedToolType]];
+        databaseList = GameItemManager.Databases;
         selectedDatabase = databaseList[selectedToolType];
         EditorGUILayout.BeginHorizontal (); { // Split list and data view
             EditorGUILayout.BeginVertical (); { // List of data
@@ -116,6 +123,12 @@ public class DataManagerWindow : EditorWindow {
                 EditorGUILayout.BeginScrollView (scrollPositionLeft); {
                     EditorGUILayout.BeginHorizontal (); {
                         if (selectedDatabase.myData.Count > 0) {
+                            if (selectedListItem >= selectedDatabase.myData.Count) {
+                                selectedListItem = (selectedDatabase.myData.Count - 1);
+                            }
+                            if (selectedListItem < 0) {
+                                selectedListItem = 0;
+                            }
                             GUILayout.SelectionGrid (selectedListItem, GetDataNames (), 1);
                             GUILayout.SelectionGrid (selectedListItem, GetDataIDs (), 1);
                             GUILayout.SelectionGrid (selectedListItem, GetCategoryNames(), 1);
@@ -127,16 +140,17 @@ public class DataManagerWindow : EditorWindow {
                 }
             } EditorGUILayout.EndVertical (); 
             EditorGUILayout.BeginVertical (); { // data details
-                EditorGUILayout.BeginScrollView (scrollPositionRight); {
-                    if (selectedGameData != null) {
-                        selectedGameData.OnGUI ();
+                if (selectedGameData != null) {
+                    EditorGUILayout.BeginScrollView (scrollPositionRight);
+                    {
+                        selectedGameData.OnGUI ();   
                     }
-                } EditorGUILayout.EndScrollView ();
-                if (GUILayout.Button("Delete")){
+                    EditorGUILayout.EndScrollView ();
+                    if (GUILayout.Button ("Delete")) {
+                    }
                 }
             } EditorGUILayout.EndVertical ();
         } EditorGUILayout.EndHorizontal ();
-//        FocusWindowIfItsOpen<AddDataWindow> ();
     }
 
     string[] GetDataTypeNames () {

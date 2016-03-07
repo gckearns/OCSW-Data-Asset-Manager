@@ -45,13 +45,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Data Management\Editor\AddAttributeWindow.cs" />
-     <Compile Include="Assets\Data Management\Editor\AddDataWindow.cs" />
      <Compile Include="Assets\Data Management\Editor\AddObjectWindow.cs" />
      <Compile Include="Assets\Data Management\Editor\AttributeManagerWindow.cs" />
-     <Compile Include="Assets\Data Management\Editor\DataManagerWindow.cs" />
-     <Compile Include="Assets\Data Management\Editor\DatabaseEditor.cs" />
+     <Compile Include="Assets\Data Management\Editor\GameItemWindow.cs" />
      <Compile Include="Assets\Data Management\Editor\GenericManagerWindow.cs" />
+     <Compile Include="Assets\Data Management\Editor\Inspectors\DatabaseEditor.cs" />
+     <Compile Include="Assets\Data Management\Editor\Inspectors\OcswEditor.cs" />
  <Reference Include="UnityEditor.Advertisements">
  <HintPath>D:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/Advertisements/Editor/UnityEditor.Advertisements.dll</HintPath>
  </Reference>

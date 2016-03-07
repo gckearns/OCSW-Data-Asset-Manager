@@ -45,19 +45,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Data Management\Data\AttributeValue.cs" />
+     <Compile Include="Assets\Data Management\Attributes\AttributeValue.cs" />
+     <Compile Include="Assets\Data Management\Attributes\ItemAttributeList.cs" />
      <Compile Include="Assets\Data Management\Data\DataObject.cs" />
-     <Compile Include="Assets\Data Management\Data\GameAttribute.cs" />
-     <Compile Include="Assets\Data Management\Data\GameData.cs" />
+     <Compile Include="Assets\Data Management\Data\GameItem.cs" />
+     <Compile Include="Assets\Data Management\Data\ItemAttribute.cs" />
      <Compile Include="Assets\Data Management\Database\AttributeDatabase.cs" />
-     <Compile Include="Assets\Data Management\Database\GameDatabase.cs" />
+     <Compile Include="Assets\Data Management\Database\GameItemDatabase.cs" />
+     <Compile Include="Assets\Data Management\Database\ListenerDatabase.cs" />
      <Compile Include="Assets\Data Management\Database\ObjectDatabase.cs" />
-     <Compile Include="Assets\Data Management\Dictionary\GameDetailsDictionary.cs" />
+     <Compile Include="Assets\Data Management\Database\OcswDatabase.cs" />
      <Compile Include="Assets\Data Management\Managers\DatabaseManager.cs" />
-     <Compile Include="Assets\Data Management\Managers\GameAttributeManager.cs" />
      <Compile Include="Assets\Data Management\Managers\GameDataEnums.cs" />
-     <Compile Include="Assets\Data Management\Managers\GameDataManager.cs" />
      <Compile Include="Assets\Data Management\Managers\GameDataUtilities.cs" />
+     <Compile Include="Assets\Data Management\Managers\OcswManager.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>D:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

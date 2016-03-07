@@ -5,7 +5,7 @@ using UnityEditor;
 
 [Serializable]
 //[HideInInspector]
-public class GameAttribute : DataObject {
+public class ItemAttribute : DataObject {
     public delegate void GUIDelegate(AttributeValue value);
     public GUIDelegate updateValue = null;
     public GameAttributeType typeEnum = GameAttributeType.Int;
@@ -17,7 +17,7 @@ public class GameAttribute : DataObject {
         EditorGUI.BeginChangeCheck ();
         typeEnum = (GameAttributeType) EditorGUILayout.EnumPopup ("Type", typeEnum);
         if (EditorGUI.EndChangeCheck()) {
-            SetAttributeType (typeEnum);
+            UpdateAttributeType ();
         }
         if (typeEnum == GameAttributeType.IntSlider) {
             sliderMinimum = EditorGUILayout.IntField ("Slider Min.", sliderMinimum);
@@ -27,19 +27,18 @@ public class GameAttribute : DataObject {
 
     public void OnGUI (AttributeValue attributeVal) {
         if (updateValue == null) {
-            SetAttributeType (typeEnum);
+            UpdateAttributeType (); // maybe can get rid of this if block
         }
         updateValue (attributeVal);
     }
 
-    public override bool OnDBDataRemoved (Type t, int index)
-    {
-        Debug.Log (t.ToString() + " database removed index " + index);
-        return true;
+    public void SetAttributeType (GameAttributeType typeEnum) {
+        this.typeEnum = typeEnum;
+        UpdateAttributeType ();
     }
 
-    public void SetAttributeType (GameAttributeType attributeType) {
-        switch (attributeType) {
+    public void UpdateAttributeType () {
+        switch (typeEnum) {
         case GameAttributeType.Float:
             updateValue = GetFloat;
             Debug.Log (dataObjectName + " attribute set to float.");
@@ -54,7 +53,8 @@ public class GameAttribute : DataObject {
             break;
         default:
             updateValue = null;
-            break;
+            throw (new MissingFieldException("This attribute's 'updateValue' is null. Can't set GUI delegate."));
+//            break;
         }
     }
 
@@ -68,5 +68,15 @@ public class GameAttribute : DataObject {
 
     public void GetIntSlider (AttributeValue current) {
         current.intValue = EditorGUILayout.IntSlider (dataObjectName, current.intValue, sliderMinimum, sliderMaximum);
+    }
+
+    public override bool OnDBDataAdded (Type t, int index)
+    {
+        return true;
+    }
+
+    public override bool OnDBDataRemoved (Type t, int index)
+    {
+        return true;
     }
 }

@@ -16,19 +16,19 @@ public class AttributeManagerWindow : EditorWindow {
     //    private GameDataDictionary gameDictionary;
     private List<AttributeDatabase> databaseList = null;
     public AttributeDatabase selectedDatabase;
-    private GameAttribute selectedGameData;
-    private List<GameAttribute> gameDataList = new List<GameAttribute>();
+    private ItemAttribute selectedGameData;
+    private List<ItemAttribute> gameDataList = new List<ItemAttribute>();
 
     [MenuItem ("Data Managers/Attribute Manager")]
     static void Init() {
         AttributeManagerWindow attWindow = (AttributeManagerWindow)EditorWindow.GetWindow (typeof(AttributeManagerWindow));
-        DataManagerWindow dataWindow = (DataManagerWindow)EditorWindow.GetWindow (typeof(DataManagerWindow));
-        dataWindow.Close ();
+//        DataManagerWindow dataWindow = (DataManagerWindow)EditorWindow.GetWindow (typeof(DataManagerWindow));
+//        dataWindow.Close ();
         attWindow.Show ();
     }
 
     void OnEnable () {
-        Debug.Log ("Attribute window enabled");
+//        Debug.Log ("Attribute window enabled");
 //        manager = new GameAttributeManager(); // do i really need this?
         if (databaseList == null) {
             databaseList = GameAttributeManager.Databases;    
@@ -36,6 +36,9 @@ public class AttributeManagerWindow : EditorWindow {
     }
 
     void OnGUI (){
+        if (databaseList.Contains(null)) {
+            databaseList = GameAttributeManager.Databases;
+        }
         selectedToolType = GUILayout.Toolbar(selectedToolType, GetDataTypeNames());
         selectedDatabase = databaseList[selectedToolType];
         EditorGUILayout.BeginHorizontal (); { // Split list and data view
@@ -43,7 +46,14 @@ public class AttributeManagerWindow : EditorWindow {
                 selectedToolSort = GUILayout.Toolbar (selectedToolSort, new string[]{ "Name", "ID", "Type" });
                 scrollPositionLeft = EditorGUILayout.BeginScrollView (scrollPositionLeft); {
                     EditorGUILayout.BeginHorizontal (); {
+                        selectedGameData = null;
                         if (selectedDatabase.myData.Count > 0) {
+                            if (selectedListItem >= selectedDatabase.myData.Count) {
+                                selectedListItem = (selectedDatabase.myData.Count - 1);
+                            }
+                            if (selectedListItem < 0) {
+                                selectedListItem = 0;
+                            }
                             selectedListItem = GUILayout.SelectionGrid (selectedListItem, GetDataNames (), 1);
                             selectedListItem = GUILayout.SelectionGrid (selectedListItem, GetDataIDs (), 1);
                             selectedListItem = GUILayout.SelectionGrid (selectedListItem, GetCategoryNames(), 1);
@@ -56,30 +66,31 @@ public class AttributeManagerWindow : EditorWindow {
 //                        selectedDatabase.AddGameData (selectedDatabase.myData.Capacity.ToString());
                         AddAttributeWindow w = ScriptableObject.CreateInstance<AddAttributeWindow> ();
                         w.database = selectedDatabase;
+                        w.parentWindow = this;
                         w.ShowUtility ();
                     }
                     //Refresh and select the new data
                 }
             } EditorGUILayout.EndVertical (); 
             EditorGUILayout.BeginVertical (); { // data details
-                scrollPositionRight = EditorGUILayout.BeginScrollView (scrollPositionRight); {
-                    if (selectedGameData != null) {
+                if (selectedGameData != null) {
+                    scrollPositionRight = EditorGUILayout.BeginScrollView (scrollPositionRight);
+                    {
                         selectedGameData.OnGUI ();
                     }
-                } EditorGUILayout.EndScrollView ();
-                if (GUILayout.Button("Delete")){
-                    if (selectedGameData != null) {
+                    EditorGUILayout.EndScrollView ();
+                    if (GUILayout.Button ("Delete")) {
                         // Put a warning dialogue here
                         selectedDatabase.RemoveData (selectedGameData.dataObjectID);
-                        selectedGameData = null;
-                        selectedListItem --;
-                    }
-                    if (selectedListItem < 0) {
-                        selectedListItem = 0;
                     }
                 }
             } EditorGUILayout.EndVertical ();
         } EditorGUILayout.EndHorizontal ();
+        Event e = Event.current;
+        //        Debug.Log ("Event: " + e.type.ToString());
+        if (e.type == EventType.MouseUp) {
+            EditorGUIUtility.keyboardControl = 0;
+        }
     }
 
     string[] GetDataTypeNames () {

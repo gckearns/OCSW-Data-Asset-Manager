@@ -6,7 +6,7 @@ using System;
 public class AttributeValue : ScriptableObject {
 
     [SerializeField]
-    public GameAttribute gAttribute;
+    public ItemAttribute gAttribute;
 
     public int intValue {
         get {

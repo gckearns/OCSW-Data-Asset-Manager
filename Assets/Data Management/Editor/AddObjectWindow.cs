@@ -4,6 +4,9 @@ using UnityEditor;
 using System.Collections.Generic;
 using System.Text;
 
+public class AddDataWindow : AddObjectWindow<GameItem>{}
+public class AddAttributeWindow : AddObjectWindow<ItemAttribute>{}
+
 public class AddObjectWindow<TObject> : EditorWindow where TObject : DataObject{
 
     public string objectName = "New Object";
@@ -45,7 +48,7 @@ public class AddObjectWindow<TObject> : EditorWindow where TObject : DataObject{
 
     void ValidateID () {
         if (IsValidID(objectID)) {
-            database.AddDataObject (objectID);
+            database.AddDataObject (objectName, objectID);
             parentWindow.Focus ();
             Close ();
             //            FocusWindowIfItsOpen<DataManagerWindow> ();

@@ -19,5 +19,15 @@ public abstract class DataObject : ScriptableObject {
         EditorGUILayout.LabelField ("ID", dataObjectID);
     }
 
-    public abstract bool OnDBDataRemoved (Type t, int index);
+    public virtual bool OnDBDataAdded (Type t, int index) {
+        throw new NotImplementedException ();
+    }
+    public virtual bool OnDBDataRemoved (Type t, int index) {
+        throw new NotImplementedException ();
+    }
+
+    public override string ToString ()
+    {
+        return string.Format ("[{0}]{1} {2}",this.GetType().Name, dataObjectName, dataObjectID);
+    }
 }

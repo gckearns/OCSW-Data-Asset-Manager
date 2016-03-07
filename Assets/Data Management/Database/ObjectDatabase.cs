@@ -4,24 +4,6 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 
-public delegate bool DataChangeListener (Type dataObjectType, int index);
-
-public class MyAssetProcessor : AssetModificationProcessor
-{
-    static string[] OnWillSaveAssets (string[] paths) {
-        Debug.Log ("OnWillSaveAssets");
-        return paths;
-    }
-
-    static AssetDeleteResult OnWillDeleteAsset (string path, RemoveAssetOptions option) {
-        Debug.Log ("OnWillDeleteAssets");
-        Debug.Log (path);
-        Debug.Log (option.ToString());
-        return AssetDeleteResult.FailedDelete;
-    }
-
-}
-
 [Serializable]
 public abstract class ObjectDatabase <TObject> : ScriptableObject
     where TObject : DataObject {
@@ -33,12 +15,12 @@ public abstract class ObjectDatabase <TObject> : ScriptableObject
     [SerializeField]
     public List<TObject> myData = new List<TObject>();
     [SerializeField]
-    protected TObject _defaultDataObject = null;
-
-    public TObject defaultDataObject {
+    private TObject _defaultDataObject = null;
+    protected TObject defaultDataObject {
         get {
             if (_defaultDataObject == null) {
                 _defaultDataObject = GetDefaultObject ();
+                FinalizeObject (_defaultDataObject);
             }
             return _defaultDataObject;
         }
@@ -47,46 +29,73 @@ public abstract class ObjectDatabase <TObject> : ScriptableObject
         }
     }
 
-    void OnEnable () {
-        //        hideFlags = HideFlags.HideInInspector;
-
+    private OcswDatabase _myDatabase = null;
+    private OcswDatabase myDatabase {
+        get {
+            if (_myDatabase == null) {
+                _myDatabase = OcswManager.Database;
+            }
+            return _myDatabase;
+        }
     }
 
-    public void AddDataObject (string dataID) {
-        TObject gd = ScriptableObject.CreateInstance<TObject> ();
-//        TObject gd = ScriptableObject.Instantiate <TObject> (_defaultDataObject);
-        gd.dataType = dataType;
-        gd.dataObjectID = dataID;
+    public void AddDataObject (string dataName, string dataID) {
+//        TObject gd = ScriptableObject.CreateInstance<TObject> ();
+        TObject obj = SetObjectDefaults (ScriptableObject.Instantiate <TObject> (defaultDataObject));
+        obj.dataObjectName = dataName;
+        obj.name = dataID;
+        obj.dataObjectID = dataID;
+        obj.dataType = dataType;
         myIDs.Add (dataID);
-        myData.Add (gd);
-        gd.name = dataID;
-        GameDataUtilities.DataRemovedListener += gd.OnDBDataRemoved;
-        AssetDatabase.AddObjectToAsset (gd, this);
-        AssetDatabase.SaveAssets ();
-        Debug.Log ("Saved GameData Assets");
+        myData.Insert (myIDs.IndexOf(dataID), obj);
+        int i = myData.IndexOf (obj);
+        FinalizeObject (obj);
+        if (myDatabase.dataAddedListener != null) {
+            myDatabase.OnDBDataAdded (typeof (TObject), i);
+        }
     }
 
     public void RemoveData (string dataID) {
         int i = myIDs.IndexOf (dataID);
-        TObject gd = myData [i];
-        if (GameDataUtilities.dataRemovedListener != null) {
-            GameDataUtilities.OnDBDataRemoved (typeof (TObject), i);
+        TObject obj = myData [i];
+        if (obj.dataObjectID != dataID) {
+            Debug.Log ("DELETION ID INDEX DOESN'T MATCH DELETION CANDIDATE"); //can probably delete this if block
         }
-        DestroyImmediate (gd, true);
+        myDatabase.DataAddedListener -= obj.OnDBDataAdded;
+        myDatabase.DataRemovedListener -= obj.OnDBDataRemoved;
+        if (myDatabase.dataRemovedListener != null) {
+            myDatabase.OnDBDataRemoved (typeof (TObject), i);
+        }
+        DestroyImmediate (obj, true);
         myIDs.RemoveAt (i);
         myData.RemoveAt (i);
         AssetDatabase.SaveAssets (); // I could do something else with this to allow UNDO actions
+
     }
 
     public void ResetDatabase () {
-        foreach (TObject dataObject in myData) {
-            DestroyImmediate (dataObject, true);
+        while (myData.Count > 0) {
+            RemoveData (myData[myData.Count - 1].dataObjectID);
         }
-        myData = new List<TObject> ();
-        myIDs = new List<string> ();
+        myData.Clear();
+        myData.TrimExcess();
+        myIDs.Clear();
+        myIDs.TrimExcess ();
+        DestroyImmediate (defaultDataObject, true);
         AssetDatabase.SaveAssets ();
-        Debug.Log ("Database has been reset.");
+        defaultDataObject = GetDefaultObject ();
+        FinalizeObject (defaultDataObject);
+        Debug.Log (dataType.ToString() + " database reset.");
+    }
+
+    private void FinalizeObject (TObject dataObject) {
+        myDatabase.DataAddedListener += dataObject.OnDBDataAdded;
+        myDatabase.DataRemovedListener += dataObject.OnDBDataRemoved;
+        AssetDatabase.AddObjectToAsset (dataObject, this);
+        AssetDatabase.SaveAssets ();
     }
 
     public abstract TObject GetDefaultObject ();
+
+    public abstract TObject SetObjectDefaults (TObject item);
 }

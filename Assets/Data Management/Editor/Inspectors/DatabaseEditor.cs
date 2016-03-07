@@ -20,12 +20,12 @@ public abstract class DatabaseEditor <TDatabase, TObject> : Editor
     }
 }
 
-[CustomEditor (typeof (GameDatabase))]
+[CustomEditor (typeof (GameItemDatabase))]
 [CanEditMultipleObjects]
-public class GameDatabaseEditor : DatabaseEditor <GameDatabase, GameData> {
+public class GameDatabaseEditor : DatabaseEditor <GameItemDatabase, GameItem> {
 }
 
 [CustomEditor (typeof (AttributeDatabase))]
 [CanEditMultipleObjects]
-public class AttributeDatabaseEditor : DatabaseEditor <AttributeDatabase, GameAttribute> {
+public class AttributeDatabaseEditor : DatabaseEditor <AttributeDatabase, ItemAttribute> {
 }

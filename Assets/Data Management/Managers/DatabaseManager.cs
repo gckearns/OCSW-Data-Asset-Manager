@@ -4,10 +4,18 @@ using System.Collections.Generic;
 using UnityEditor;
 using System;
 
+[Serializable]
+public class GameItemManager : DatabaseManager<GameItemDatabase,GameItem> {
+}
+
+[Serializable]
+public class GameAttributeManager : DatabaseManager<AttributeDatabase,ItemAttribute> {
+}
+
 public abstract class DatabaseManager<TDatabase,TObject> 
     where TDatabase : ObjectDatabase<TObject> 
     where TObject : DataObject {
-
+    [SerializeField]
     private static List<TDatabase> databases = null;
     //    private GameDataDictionary dataDictionary = new GameDataDictionary();
     private static string assetsString = "Assets";
@@ -18,16 +26,14 @@ public abstract class DatabaseManager<TDatabase,TObject>
             return typeof(TDatabase).Name;
         }
     }
-//    private static string dbPath = "Assets/Resources/GameDatabases"; // make this unique for each manager
     private static string DbPath {get {return resourcePath + "/" + DbString;}}
 
     public static List<TDatabase> Databases { 
         get { 
-            if (databases != null) {
-                Debug.Log ("Dictionary already initialized.");
-                return databases; 
-            } else {
+            if (databases == null || databases.Contains(null)) {
                 return InitializeDictionary ();
+            } else {
+                return databases; 
             }
         }
         set {
@@ -36,27 +42,21 @@ public abstract class DatabaseManager<TDatabase,TObject>
     }
 
     private static List<TDatabase> InitializeDictionary () {
-        //        Debug.Log ("Initializing Dictionary");
         ValidateFolders ();
         databases = new List<TDatabase> ();
         foreach (GameDataType gameDataType in GameDataUtilities.allDataTypes) {
             TDatabase diskDatabase = Resources.Load <TDatabase> (DbString + "/" + gameDataType.ToString ());
             if (diskDatabase == null) {
-                //                Debug.Log ("Data type does not exist on disk.  Creating...");
                 TDatabase gdb = ScriptableObject.CreateInstance<TDatabase>();
-                gdb.dataType = gameDataType;
                 AssetDatabase.CreateAsset (gdb, DbPath + "/" + gameDataType.ToString () + ".asset");
-                //                dataDictionary.Add (gameDataType, gdb);
+                gdb.dataType = gameDataType;
                 databases.Add (gdb);
             } else {
-                //                dataDictionary.Add (gameDataType, diskDatabase);
                 databases.Add (diskDatabase);
-                //                    Debug.Log ("Integrated data with dictionary.");
             }
         }
         AssetDatabase.SaveAssets ();
-        //        dataDictionary.isInitialized = true;
-        Debug.Log ("Assets validated and Saved. Done initializing database list.");
+        Debug.Log ("Assets validated and Saved. Database list initialized.");
         return databases;
     }
 
